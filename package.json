@@ -1,0 +1,6 @@
+{
+  "dependencies": {
+    "@hyperlane-xyz/sdk": "^1.5.1",
+    "@openzeppelin/contracts": "^4.9.3"
+  }
+}
