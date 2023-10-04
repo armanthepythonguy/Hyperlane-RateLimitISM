@@ -8,6 +8,7 @@ contract RateLimitISM is AbstractRateLimitISM{
     constructor(uint256 _rateLimit, address _baseISM){
         rateLimit = _rateLimit;
         baseISM = _baseISM;
+        lastTimestamp = block.timestamp;
     }
 
 }

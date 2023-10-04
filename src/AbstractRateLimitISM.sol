@@ -11,6 +11,9 @@ abstract contract AbstractRateLimitISM is IInterchainSecurityModule, Ownable{
         uint8(IInterchainSecurityModule.Types.ROUTING);
 
     uint256 public rateLimit;
+    uint256 private constant DURATION = 5 minutes;
+    uint256 public proccesedAmount;
+    uint256 public lastTimestamp;
     address public baseISM;
 
     function changeRateLimit(uint256 _rateLimit) external onlyOwner{
@@ -19,10 +22,19 @@ abstract contract AbstractRateLimitISM is IInterchainSecurityModule, Ownable{
 
     function route(bytes calldata _message)
         public
-        view
         virtual
         returns (IInterchainSecurityModule){
         require(WarpMessage.amount(Message.body(_message)) <= rateLimit, "ISM Rate Limit exceeded");
+        if(lastTimestamp+DURATION < block.timestamp){
+            lastTimestamp = block.timestamp;
+            proccesedAmount = WarpMessage.amount(Message.body(_message));
+        }else if(lastTimestamp+DURATION >= block.timestamp){
+            if(proccesedAmount+WarpMessage.amount(Message.body(_message)) <= rateLimit){
+                proccesedAmount += WarpMessage.amount(Message.body(_message));
+            }else{
+                revert("ISM Rate Limit exceeded");
+            }
+        }
         return IInterchainSecurityModule(baseISM);
     }
 
